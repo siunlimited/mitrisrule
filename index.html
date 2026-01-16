@@ -4,9 +4,38 @@
   <meta charset="UTF-8">
   <title>Mitri’s Rule</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Mitri’s Rule</h1>
-  <p>The site is live.</p>
+
+  <header>
+    <nav>
+      <a href="#" onclick="loadPage('dad')">Dad</a>
+      <a href="#" onclick="loadPage('mom')">Mom</a>
+      <a href="#" onclick="loadPage('paul')">Paul</a>
+      <a href="#" onclick="loadPage('braden')">Braden</a>
+      <a href="#" onclick="loadPage('jake')">Jake</a>
+    </nav>
+  </header>
+
+  <main id="content">
+    <h1>Mitri’s Rule</h1>
+    <p>Select a name above.</p>
+  </main>
+
+  <script>
+    function loadPage(name) {
+      fetch(`content/${name}.html`)
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('content').innerHTML = html;
+        })
+        .catch(() => {
+          document.getElementById('content').innerHTML =
+            '<p>Content not found.</p>';
+        });
+    }
+  </script>
+
 </body>
 </html>
