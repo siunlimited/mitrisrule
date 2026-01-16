@@ -1,96 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mitri’s Rule</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitri’s Rule</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
+  <!-- Fun font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        .topnav {
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: flex-start;
-            border-bottom: 1px solid #ccc;
-        }
-
-        .topnav a {
-            text-decoration: none;
-            color: #333;
-            padding: 10px 15px;
-            display: block;
-            cursor: pointer;
-        }
-
-        .topnav a:hover {
-            background-color: #ddd;
-        }
-
-        .topnav a.active {
-            background-color: #333;
-            color: #fff;
-        }
-
-        .main {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        @media (max-width: 768px) {
-            .topnav {
-                flex-wrap: wrap;
-            }
-
-            .topnav a {
-                flex: 1 1 auto;
-                text-align: center;
-            }
-        }
-    </style>
+  <!-- Shared styles for ALL pages -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-    <div class="topnav">
-        <a href="Dad.html" target="contentFrame" onclick="setActive(this)">Dad</a>
-        <a href="Mom.html" target="contentFrame" onclick="setActive(this)">Mom</a>
-        <a href="Paul.html" target="contentFrame" onclick="setActive(this)">Paul</a>
-        <a href="Braden.html" target="contentFrame" onclick="setActive(this)">Braden</a>
-        <a href="Jake.html" target="contentFrame" onclick="setActive(this)">Jake</a>
-    </div>
+  <div class="topnav">
+    <a href="Dad.html" target="contentFrame" onclick="setActive(this)">Dad</a>
+    <a href="Mom.html" target="contentFrame" onclick="setActive(this)">Mom</a>
+    <a href="Paul.html" target="contentFrame" onclick="setActive(this)">Paul</a>
+    <a href="Braden.html" target="contentFrame" onclick="setActive(this)">Braden</a>
+    <a href="Jake.html" target="contentFrame" onclick="setActive(this)">Jake</a>
+  </div>
 
-    <div class="main">
-        <iframe name="contentFrame" src="Dad.html"></iframe>
-    </div>
+  <div class="main">
+    <iframe name="contentFrame" src="Dad.html"></iframe>
+  </div>
 </div>
 
 <script>
-    function setActive(link) {
-        const links = document.querySelectorAll('.topnav a');
-        links.forEach(a => a.classList.remove('active'));
-        link.classList.add('active');
-    }
+  function setActive(link) {
+    const links = document.querySelectorAll('.topnav a');
+    links.forEach(a => a.classList.remove('active'));
+    link.classList.add('active');
+  }
 
-    // Set default active tab on page load
-    window.onload = () => {
-        document.querySelector('.topnav a').classList.add('active');
-    };
+  window.onload = () => {
+    document.querySelector('.topnav a').classList.add('active');
+  };
 </script>
 
 </body>
