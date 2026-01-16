@@ -1,31 +1,102 @@
-body {
+/* Fun, relaxed font (Google Font) + global sizing */
+:root{
+  --font-family: "Kalam", "Trebuchet MS", Arial, sans-serif;
+  --base-font-size: 20px;     /* bump this up/down */
+  --line-height: 1.55;
+
+  --text-color: #222;
+  --bg-color: #ffffff;
+
+  --nav-bg: #f4f4f4;
+  --nav-border: #ccc;
+  --nav-link: #333;
+  --nav-hover: #ddd;
+  --nav-active-bg: #333;
+  --nav-active-color: #fff;
+
+  --page-max-width: 900px;
+}
+
+/* Base page styling (applies to Dad/Mom/etc.) */
+html, body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  padding: 0;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-family);
+  font-size: var(--base-font-size);
+  line-height: var(--line-height);
 }
 
-header {
-  background: #111;
-  padding: 15px;
+/* Give content pages a nice readable layout */
+.page {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 28px 18px;
 }
 
-nav {
+.page h1, .page h2 {
+  margin: 0 0 12px 0;
+}
+
+.page p {
+  margin: 0 0 12px 0;
+}
+
+/* --- Index page layout (your capper.news style) --- */
+.container {
   display: flex;
-  gap: 25px;
-  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
 }
 
-nav a {
-  color: #fff;
+.topnav {
+  background-color: var(--nav-bg);
+  display: flex;
+  justify-content: flex-start;
+  border-bottom: 1px solid var(--nav-border);
+}
+
+.topnav a {
   text-decoration: none;
-  font-weight: bold;
+  color: var(--nav-link);
+  padding: 10px 15px;
+  display: block;
+  cursor: pointer;
 }
 
-nav a:hover {
-  text-decoration: underline;
+.topnav a:hover {
+  background-color: var(--nav-hover);
 }
 
-main {
-  padding: 40px;
-  max-width: 900px;
-  margin: auto;
+.topnav a.active {
+  background-color: var(--nav-active-bg);
+  color: var(--nav-active-color);
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Mobile nav */
+@media (max-width: 768px) {
+  .topnav {
+    flex-wrap: wrap;
+  }
+
+  .topnav a {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  :root{
+    --base-font-size: 18px; /* slightly smaller on phones */
+  }
 }
