@@ -29,16 +29,17 @@
             color: #333;
             padding: 10px 15px;
             display: block;
+            cursor: pointer;
         }
 
         .topnav a:hover {
             background-color: #ddd;
         }
+
         .topnav a.active {
             background-color: #333;
             color: #fff;
         }
-
 
         .main {
             flex: 1;
@@ -74,11 +75,23 @@
         <a href="Jake.html" target="contentFrame" onclick="setActive(this)">Jake</a>
     </div>
 
-
     <div class="main">
-        <iframe name="contentFrame" src="Home.html"></iframe>
+        <iframe name="contentFrame" src="Dad.html"></iframe>
     </div>
 </div>
+
+<script>
+    function setActive(link) {
+        const links = document.querySelectorAll('.topnav a');
+        links.forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+    }
+
+    // Set default active tab on page load
+    window.onload = () => {
+        document.querySelector('.topnav a').classList.add('active');
+    };
+</script>
 
 </body>
 </html>
