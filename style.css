@@ -56,10 +56,12 @@ html, body {
 .family-photo {
   display: block;
   width: 100%;
-  max-width: 700px;            /* keeps it tasteful on desktop */
+  max-width: 700px;          /* desktop width cap */
+  max-height: 55vh;          /* KEY: limit height to viewport */
+  object-fit: contain;       /* keep full image visible */
   height: auto;
-  margin: 24px auto 0 auto;    /* centered */
-  border-radius: 12px;         /* friendly look */
+  margin: 24px auto 0 auto;  /* centered */
+  border-radius: 12px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.15);
 }
 
