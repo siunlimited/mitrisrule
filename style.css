@@ -71,7 +71,7 @@ html, body {
 .container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .topnav {
@@ -100,7 +100,7 @@ html, body {
 
 .main {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 iframe {
