@@ -1,7 +1,9 @@
-/* Fun, relaxed font (Google Font) + global sizing */
+/* =========================================================
+   Global variables – change these ONCE to affect all pages
+   ========================================================= */
 :root{
   --font-family: "Kalam", "Trebuchet MS", Arial, sans-serif;
-  --base-font-size: 20px;     /* bump this up/down */
+  --base-font-size: 20px;     /* increase/decrease site-wide */
   --line-height: 1.55;
 
   --text-color: #222;
@@ -17,7 +19,9 @@
   --page-max-width: 900px;
 }
 
-/* Base page styling (applies to Dad/Mom/etc.) */
+/* =========================================================
+   Base page styling (ALL pages)
+   ========================================================= */
 html, body {
   margin: 0;
   padding: 0;
@@ -28,14 +32,17 @@ html, body {
   line-height: var(--line-height);
 }
 
-/* Give content pages a nice readable layout */
+/* =========================================================
+   Content page layout (Dad / Mom / etc.)
+   ========================================================= */
 .page {
   max-width: var(--page-max-width);
   margin: 0 auto;
   padding: 28px 18px;
 }
 
-.page h1, .page h2 {
+.page h1,
+.page h2 {
   margin: 0 0 12px 0;
 }
 
@@ -43,7 +50,22 @@ html, body {
   margin: 0 0 12px 0;
 }
 
-/* --- Index page layout (your capper.news style) --- */
+/* =========================================================
+   Family photo (Home page)
+   ========================================================= */
+.family-photo {
+  display: block;
+  width: 100%;
+  max-width: 700px;            /* keeps it tasteful on desktop */
+  height: auto;
+  margin: 24px auto 0 auto;    /* centered */
+  border-radius: 12px;         /* friendly look */
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+/* =========================================================
+   Index page layout (capper.news-style)
+   ========================================================= */
 .container {
   display: flex;
   flex-direction: column;
@@ -85,8 +107,15 @@ iframe {
   border: none;
 }
 
-/* Mobile nav */
+/* =========================================================
+   Mobile adjustments
+   ========================================================= */
 @media (max-width: 768px) {
+
+  :root{
+    --base-font-size: 18px; /* slightly smaller on phones */
+  }
+
   .topnav {
     flex-wrap: wrap;
   }
@@ -96,23 +125,7 @@ iframe {
     text-align: center;
   }
 
-  :root{
-    --base-font-size: 18px; /* slightly smaller on phones */
-  }
-    .family-photo {
-      display: block;
-      max-width: 100%;
-      height: auto;
-      margin: 24px auto 0 auto; /* centers it */
-      border-radius: 12px;      /* soft, friendly look */
-  }
   .family-photo {
-      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    max-width: 100%; /* full width on small screens */
   }
-
-  .family-photo {
-      max-width: 700px;
-  }
-
-
 }
