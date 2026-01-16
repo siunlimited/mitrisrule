@@ -99,4 +99,12 @@ iframe {
   :root{
     --base-font-size: 18px; /* slightly smaller on phones */
   }
+    .family-photo {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 24px auto 0 auto; /* centers it */
+    border-radius: 12px;      /* soft, friendly look */
+}
+
 }
