@@ -1,41 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Mitri’s Rule</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitri’s Rule</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .topnav {
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: flex-start;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .topnav a {
+            text-decoration: none;
+            color: #333;
+            padding: 10px 15px;
+            display: block;
+        }
+
+        .topnav a:hover {
+            background-color: #ddd;
+        }
+
+        .main {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @media (max-width: 768px) {
+            .topnav {
+                flex-wrap: wrap;
+            }
+
+            .topnav a {
+                flex: 1 1 auto;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <header>
-    <nav>
-      <a href="#" onclick="loadPage('dad')">Dad</a>
-      <a href="#" onclick="loadPage('mom')">Mom</a>
-      <a href="#" onclick="loadPage('paul')">Paul</a>
-      <a href="#" onclick="loadPage('braden')">Braden</a>
-      <a href="#" onclick="loadPage('jake')">Jake</a>
-    </nav>
-  </header>
+<div class="container">
+    <div class="topnav">
+        <a href="Dad.html" target="contentFrame">Dad</a>
+        <a href="Mom.html" target="contentFrame">Mom</a>
+        <a href="Paul.html" target="contentFrame">Paul</a>
+        <a href="Braden.html" target="contentFrame">Braden</a>
+        <a href="Jake.html" target="contentFrame">Jake</a>
+    </div>
 
-  <main id="content">
-    <h1>Mitri’s Rule</h1>
-    <p>Select a name above.</p>
-  </main>
-
-  <script>
-    function loadPage(name) {
-      fetch(`content/${name}.html`)
-        .then(response => response.text())
-        .then(html => {
-          document.getElementById('content').innerHTML = html;
-        })
-        .catch(() => {
-          document.getElementById('content').innerHTML =
-            '<p>Content not found.</p>';
-        });
-    }
-  </script>
+    <div class="main">
+        <iframe name="contentFrame" src="Home.html"></iframe>
+    </div>
+</div>
 
 </body>
 </html>
