@@ -100,11 +100,19 @@ iframe {
     --base-font-size: 18px; /* slightly smaller on phones */
   }
     .family-photo {
-    display: block;
-    max-width: 100%;
-    height: auto;
-    margin: 24px auto 0 auto; /* centers it */
-    border-radius: 12px;      /* soft, friendly look */
-}
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 24px auto 0 auto; /* centers it */
+      border-radius: 12px;      /* soft, friendly look */
+  }
+  .family-photo {
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  }
+
+  .family-photo {
+      max-width: 700px;
+  }
+
 
 }
