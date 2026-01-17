@@ -9,8 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
 
-  <!-- bump v= when you change CSS to force refresh -->
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -34,6 +33,9 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyh0C40bopHY2Bfqtria3adRqVNEDJoc_2_MXn3UuS2iOaQIlqJgJAJcnOeF-c7VgTs/exec";
     const PERSON = "Dad";
 
+    // Cache key: unique per person
+    const CACHE_KEY = `mitrisrule_cache_${PERSON}_v1`;
+
     const form = document.getElementById("giftForm");
     const input = document.getElementById("giftInput");
     const listEl = document.getElementById("giftList");
@@ -42,7 +44,6 @@
     async function apiPost(payload) {
       const res = await fetch(API_URL, {
         method: "POST",
-        // Apps Script Web Apps play nicest with text/plain
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload),
       });
@@ -52,6 +53,21 @@
     async function loadList() {
       const res = await fetch(`${API_URL}?person=${encodeURIComponent(PERSON)}`);
       return res.json();
+    }
+
+    function saveCache(items) {
+      try {
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(items));
+      } catch (e) {}
+    }
+
+    function loadCache() {
+      try {
+        const raw = sessionStorage.getItem(CACHE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
     }
 
     function renderItems(items) {
@@ -76,17 +92,19 @@
         btn.className = "gift-delete";
         btn.textContent = "Delete";
 
-        // Optimistic delete: remove instantly, then sync
         btn.addEventListener("click", async () => {
+          // Optimistic delete
           const current = getRenderedItems();
           const optimistic = current.filter(x => x.id !== item.id);
           renderItems(optimistic);
+          saveCache(optimistic);
 
           try {
             await apiPost({ action: "delete", person: PERSON, id: item.id });
-            await refresh(); // reconcile with server
+            await refresh(); // reconcile
           } catch (err) {
             renderItems(current);
+            saveCache(current);
             alert("Could not delete right now. Try again.");
           }
         });
@@ -97,33 +115,36 @@
       });
     }
 
-    // Helper: read what’s currently on screen (so we can update instantly)
+    // Read what's currently shown (keeps ids/text for optimistic updates)
     function getRenderedItems() {
-      return Array.from(document.querySelectorAll(".gift-item")).map(li => {
+      const items = [];
+      document.querySelectorAll(".gift-item").forEach(li => {
         const textEl = li.querySelector(".gift-text");
         const btnEl = li.querySelector(".gift-delete");
-        // We stored the id on the delete button dataset below
         const id = btnEl?.dataset?.id || ("ui_" + Math.random().toString(16).slice(2));
-        return { id, text: textEl ? textEl.textContent : "" };
+        items.push({ id, text: textEl ? textEl.textContent : "" });
       });
+      return items;
     }
 
     async function refresh() {
       const data = await loadList();
       if (data.ok) {
-        // Attach ids to buttons so optimistic delete can identify items
         renderItems(data.items);
-        // After rendering, store ids on each delete button (same order)
+
+        // Store ids on buttons so optimistic delete can match real ids
         const buttons = document.querySelectorAll(".gift-delete");
         data.items.forEach((it, i) => {
           if (buttons[i]) buttons[i].dataset.id = it.id;
         });
+
+        saveCache(data.items);
       } else {
         console.log("API error:", data);
       }
     }
 
-    // Optimistic add: show instantly, then sync
+    // Optimistic add
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = input.value.trim();
@@ -132,20 +153,28 @@
       const current = getRenderedItems();
       const tempId = "temp_" + Date.now();
       const optimistic = [{ id: tempId, text }, ...current];
+
       renderItems(optimistic);
+      saveCache(optimistic);
 
       input.value = "";
       input.focus();
 
       try {
         await apiPost({ action: "add", person: PERSON, text });
-        await refresh(); // reconcile with server
+        await refresh(); // reconcile with server (and get real IDs)
       } catch (err) {
         renderItems(current);
+        saveCache(current);
         alert("Could not save right now. Try again.");
       }
     });
 
+    // 1) Show cached list instantly (if available)
+    const cached = loadCache();
+    if (cached) renderItems(cached);
+
+    // 2) Then refresh in background (authoritative)
     refresh();
   </script>
 
