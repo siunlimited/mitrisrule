@@ -19,9 +19,7 @@
   --page-max-width: 900px;
 }
 
-/* =========================================================
-   Global box sizing (prevents phantom overflow)
-   ========================================================= */
+/* Prevent weird overflow from padding/borders */
 *,
 *::before,
 *::after {
@@ -29,18 +27,16 @@
 }
 
 /* =========================================================
-   Base page styling (ALL pages)
+   Base page styling (ALL pages, INCLUDING Dad/Home/etc.)
    ========================================================= */
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
   background: var(--bg-color);
   color: var(--text-color);
   font-family: var(--font-family);
   font-size: var(--base-font-size);
   line-height: var(--line-height);
-  overflow: hidden; /* IMPORTANT: outer page never scrolls */
 }
 
 /* =========================================================
@@ -77,15 +73,21 @@ html, body {
 }
 
 /* =========================================================
-   Index page layout (iframe-only scrolling)
+   OUTER SHELL ONLY (index.html) — iframe layout + no double scrollbars
+   Apply only when <body class="shell">
    ========================================================= */
-.container {
+body.shell {
+  height: 100vh;
+  overflow: hidden; /* important: shell never scrolls */
+}
+
+body.shell .container {
   display: flex;
   flex-direction: column;
   height: 100vh;
 }
 
-.topnav {
+body.shell .topnav {
   background-color: var(--nav-bg);
   display: flex;
   justify-content: flex-start;
@@ -93,7 +95,7 @@ html, body {
   flex-shrink: 0;
 }
 
-.topnav a {
+body.shell .topnav a {
   text-decoration: none;
   color: var(--nav-link);
   padding: 10px 15px;
@@ -103,27 +105,25 @@ html, body {
   margin: 6px 4px;
 }
 
-.topnav a:hover {
+body.shell .topnav a:hover {
   background-color: var(--nav-hover);
 }
 
-.topnav a.active {
+body.shell .topnav a.active {
   background-color: var(--nav-active-bg);
   color: var(--nav-active-color);
 }
 
-/* This is the key fix */
-.main {
+body.shell .main {
   flex: 1;
-  overflow: hidden; /* NO scroll here */
+  overflow: hidden; /* shell doesn't scroll */
 }
 
-iframe {
+body.shell iframe {
   width: 100%;
   height: 100%;
   border: none;
-  display: block;   /* removes tiny baseline gap */
-  overflow-y: auto; /* iframe content scrolls */
+  display: block; /* removes tiny baseline gap */
 }
 
 /* =========================================================
@@ -196,4 +196,42 @@ iframe {
 }
 
 .gift-delete {
-  padding: 8px 12px
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  background: #f6f6f6;
+  cursor: pointer;
+  font-family: var(--font-family);
+}
+
+.gift-delete:hover {
+  background: #eee;
+}
+
+.gift-empty {
+  margin-top: 10px;
+  opacity: 0.8;
+}
+
+/* =========================================================
+   Mobile adjustments
+   ========================================================= */
+@media (max-width: 768px) {
+
+  :root{
+    --base-font-size: 18px;
+  }
+
+  body.shell .topnav {
+    flex-wrap: wrap;
+  }
+
+  body.shell .topnav a {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  .family-photo {
+    max-width: 100%;
+  }
+}
