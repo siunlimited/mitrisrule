@@ -3,19 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dad</title>
+  <title>Dad's List</title>
 
-  <!-- Same fun font + shared CSS -->
+  <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Shared site styles -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div class="page">
-    <h1>Dad</h1>
-    <p>Dad’s page content goes here.</p>
+    <h1>Dad’s List</h1>
+
+    <form class="gift-form">
+      <label for="giftInput">Gift Idea</label>
+
+      <input
+        type="text"
+        id="giftInput"
+        name="giftInput"
+        placeholder="Enter a gift idea"
+      >
+
+      <button type="submit">Add to List</button>
+    </form>
   </div>
 
 </body>
