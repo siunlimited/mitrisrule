@@ -11,35 +11,45 @@
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Shared styles for ALL pages -->
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
+
 <body class="shell">
 
-<div class="container">
-  <div class="topnav">
-      <a href="Home.html" target="contentFrame" onclick="setActive(this)">Home</a>
-      <a href="Dad.html" target="contentFrame" onclick="setActive(this)">Dad</a>
-      <a href="Mom.html" target="contentFrame" onclick="setActive(this)">Mom</a>
-      <a href="Paul.html" target="contentFrame" onclick="setActive(this)">Paul</a>
-      <a href="Braden.html" target="contentFrame" onclick="setActive(this)">Braden</a>
-      <a href="Jake.html" target="contentFrame" onclick="setActive(this)">Jake</a>
+  <div class="container">
+    <div class="topnav">
+      <a href="Home.html"   target="contentFrame" onclick="setActive(this, event)">Home</a>
+      <a href="Dad.html"    target="contentFrame" onclick="setActive(this, event)">Dad</a>
+      <a href="Mom.html"    target="contentFrame" onclick="setActive(this, event)">Mom</a>
+      <a href="Paul.html"   target="contentFrame" onclick="setActive(this, event)">Paul</a>
+      <a href="Braden.html" target="contentFrame" onclick="setActive(this, event)">Braden</a>
+      <a href="Jake.html"   target="contentFrame" onclick="setActive(this, event)">Jake</a>
+    </div>
+
+    <div class="main">
+      <iframe name="contentFrame" src="Home.html"></iframe>
+    </div>
   </div>
 
+  <script>
+    function setActive(link, e) {
+      // If you click the tab that is already active, do NOT reload the iframe
+      if (link.classList.contains("active")) {
+        e.preventDefault();
+        return;
+      }
 
-  <div class="main">
-    <iframe name="contentFrame" src="Home.html"></iframe>
-  </div>
-</div>
+      const links = document.querySelectorAll(".topnav a");
+      links.forEach(a => a.classList.remove("active"));
+      link.classList.add("active");
+    }
 
-<script>
-  function setActive(link) {
-    const links = document.querySelectorAll('.topnav a');
-    links.forEach(a => a.classList.remove('active'));
-    link.classList.add('active');
-  }
-
-
-</script>
+    // Default active tab on initial load
+    window.addEventListener("DOMContentLoaded", () => {
+      const homeLink = document.querySelector('.topnav a[href="Home.html"]');
+      if (homeLink) homeLink.classList.add("active");
+    });
+  </script>
 
 </body>
 </html>
