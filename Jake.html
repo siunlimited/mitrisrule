@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
 
-  <!-- (optional) bump v= when you change CSS to force refresh -->
-  <link rel="stylesheet" href="style.css?v=8">
+  <!-- bump v= when you change CSS to force refresh -->
+  <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 
@@ -34,6 +34,13 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyh0C40bopHY2Bfqtria3adRqVNEDJoc_2_MXn3UuS2iOaQIlqJgJAJcnOeF-c7VgTs/exec";
     const PERSON = "Jake";
 
+    // Persistent cache (works across tab closes / browser restarts)
+    const CACHE_KEY = `mitrisrule_cache_${PERSON}_v2`;
+    const CACHE_TIME_KEY = `mitrisrule_cache_time_${PERSON}_v2`;
+
+    // How often to re-check Google (5 minutes is a good “family list” balance)
+    const REFRESH_TTL_MS = 5 * 60 * 1000;
+
     const form = document.getElementById("giftForm");
     const input = document.getElementById("giftInput");
     const listEl = document.getElementById("giftList");
@@ -42,7 +49,6 @@
     async function apiPost(payload) {
       const res = await fetch(API_URL, {
         method: "POST",
-        // Apps Script Web Apps play nicest with text/plain
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload),
       });
@@ -52,6 +58,31 @@
     async function loadList() {
       const res = await fetch(`${API_URL}?person=${encodeURIComponent(PERSON)}`);
       return res.json();
+    }
+
+    function saveCache(items) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(items));
+        localStorage.setItem(CACHE_TIME_KEY, String(Date.now()));
+      } catch (e) {}
+    }
+
+    function loadCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function cacheAgeMs() {
+      try {
+        const t = Number(localStorage.getItem(CACHE_TIME_KEY) || "0");
+        return Date.now() - t;
+      } catch (e) {
+        return Number.POSITIVE_INFINITY;
+      }
     }
 
     function renderItems(items) {
@@ -75,9 +106,22 @@
         btn.type = "button";
         btn.className = "gift-delete";
         btn.textContent = "Delete";
+
         btn.addEventListener("click", async () => {
-          await apiPost({ action: "delete", person: PERSON, id: item.id });
-          await refresh();
+          // Optimistic delete: remove instantly
+          const current = getRenderedItems();
+          const optimistic = current.filter(x => x.id !== item.id);
+          renderItems(optimistic);
+          saveCache(optimistic);
+
+          try {
+            await apiPost({ action: "delete", person: PERSON, id: item.id });
+            await refresh(true); // force refresh after a write
+          } catch (err) {
+            renderItems(current);
+            saveCache(current);
+            alert("Could not delete right now. Try again.");
+          }
         });
 
         li.appendChild(span);
@@ -86,24 +130,73 @@
       });
     }
 
-    async function refresh() {
-      const data = await loadList();
-      if (data.ok) renderItems(data.items);
-      else console.log("API error:", data);
+    function getRenderedItems() {
+      const items = [];
+      document.querySelectorAll(".gift-item").forEach(li => {
+        const textEl = li.querySelector(".gift-text");
+        const btnEl = li.querySelector(".gift-delete");
+        const id = btnEl?.dataset?.id || ("ui_" + Math.random().toString(16).slice(2));
+        items.push({ id, text: textEl ? textEl.textContent : "" });
+      });
+      return items;
     }
 
+    async function refresh(force = false) {
+      // If we have cache and it’s still fresh, skip the network call
+      if (!force) {
+        const cached = loadCache();
+        if (cached && cacheAgeMs() < REFRESH_TTL_MS) return;
+      }
+
+      const data = await loadList();
+      if (data.ok) {
+        renderItems(data.items);
+
+        // Store ids on buttons so optimistic delete can match real ids
+        const buttons = document.querySelectorAll(".gift-delete");
+        data.items.forEach((it, i) => {
+          if (buttons[i]) buttons[i].dataset.id = it.id;
+        });
+
+        saveCache(data.items);
+      } else {
+        console.log("API error:", data);
+      }
+    }
+
+    // Optimistic add: show instantly
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = input.value.trim();
       if (!text) return;
 
-      await apiPost({ action: "add", person: PERSON, text });
+      const current = getRenderedItems();
+      const tempId = "temp_" + Date.now();
+      const optimistic = [{ id: tempId, text }, ...current];
+
+      renderItems(optimistic);
+      saveCache(optimistic);
+
       input.value = "";
       input.focus();
-      await refresh();
+
+      try {
+        await apiPost({ action: "add", person: PERSON, text });
+        await refresh(true); // force refresh after a write (to get real IDs)
+      } catch (err) {
+        renderItems(current);
+        saveCache(current);
+        alert("Could not save right now. Try again.");
+      }
     });
 
-    refresh();
+    // 1) Show cached list instantly (even after browser restart)
+    const cached = loadCache();
+    if (cached) renderItems(cached);
+
+    // 2) Refresh (but only if cache is missing/old)
+    // Slight delay keeps page feeling snappy on load
+    setTimeout(() => refresh(false), 200);
   </script>
 
 </body>
