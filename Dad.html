@@ -9,7 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=11">
+  <!-- bump v= when you change CSS to force refresh -->
+  <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 
@@ -33,12 +34,12 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyh0C40bopHY2Bfqtria3adRqVNEDJoc_2_MXn3UuS2iOaQIlqJgJAJcnOeF-c7VgTs/exec";
     const PERSON = "Dad";
 
-    // Cache key: unique per person
-    const CACHE_KEY = `mitrisrule_cache_${PERSON}_v1`;
-    const CACHE_TIME_KEY = `mitrisrule_cache_time_${PERSON}_v1`;
+    // Persistent cache (works across tab closes / browser restarts)
+    const CACHE_KEY = `mitrisrule_cache_${PERSON}_v2`;
+    const CACHE_TIME_KEY = `mitrisrule_cache_time_${PERSON}_v2`;
 
-    // Refresh cooldown (ms). 30 seconds feels great.
-    const REFRESH_TTL_MS = 30 * 1000;
+    // How often to re-check Google (5 minutes is a good “family list” balance)
+    const REFRESH_TTL_MS = 5 * 60 * 1000;
 
     const form = document.getElementById("giftForm");
     const input = document.getElementById("giftInput");
@@ -61,14 +62,14 @@
 
     function saveCache(items) {
       try {
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify(items));
-        sessionStorage.setItem(CACHE_TIME_KEY, String(Date.now()));
+        localStorage.setItem(CACHE_KEY, JSON.stringify(items));
+        localStorage.setItem(CACHE_TIME_KEY, String(Date.now()));
       } catch (e) {}
     }
 
     function loadCache() {
       try {
-        const raw = sessionStorage.getItem(CACHE_KEY);
+        const raw = localStorage.getItem(CACHE_KEY);
         return raw ? JSON.parse(raw) : null;
       } catch (e) {
         return null;
@@ -77,7 +78,7 @@
 
     function cacheAgeMs() {
       try {
-        const t = Number(sessionStorage.getItem(CACHE_TIME_KEY) || "0");
+        const t = Number(localStorage.getItem(CACHE_TIME_KEY) || "0");
         return Date.now() - t;
       } catch (e) {
         return Number.POSITIVE_INFINITY;
@@ -107,7 +108,7 @@
         btn.textContent = "Delete";
 
         btn.addEventListener("click", async () => {
-          // Optimistic delete
+          // Optimistic delete: remove instantly
           const current = getRenderedItems();
           const optimistic = current.filter(x => x.id !== item.id);
           renderItems(optimistic);
@@ -141,8 +142,11 @@
     }
 
     async function refresh(force = false) {
-      // If we refreshed recently, skip the network call
-      if (!force && cacheAgeMs() < REFRESH_TTL_MS) return;
+      // If we have cache and it’s still fresh, skip the network call
+      if (!force) {
+        const cached = loadCache();
+        if (cached && cacheAgeMs() < REFRESH_TTL_MS) return;
+      }
 
       const data = await loadList();
       if (data.ok) {
@@ -160,7 +164,7 @@
       }
     }
 
-    // Optimistic add
+    // Optimistic add: show instantly
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = input.value.trim();
@@ -178,7 +182,7 @@
 
       try {
         await apiPost({ action: "add", person: PERSON, text });
-        await refresh(true); // force refresh after a write
+        await refresh(true); // force refresh after a write (to get real IDs)
       } catch (err) {
         renderItems(current);
         saveCache(current);
@@ -186,12 +190,13 @@
       }
     });
 
-    // 1) Show cached list instantly
+    // 1) Show cached list instantly (even after browser restart)
     const cached = loadCache();
     if (cached) renderItems(cached);
 
-    // 2) Refresh only if cache is older than TTL
-    refresh(false);
+    // 2) Refresh (but only if cache is missing/old)
+    // Slight delay keeps page feeling snappy on load
+    setTimeout(() => refresh(false), 200);
   </script>
 
 </body>
