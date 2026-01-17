@@ -102,7 +102,7 @@ html, body {
 
 .main {
   flex: 1;
-  overflow: hidden;
+  overflow: auto; /* allow the iframe area to scroll when content is taller */
 }
 
 iframe {
