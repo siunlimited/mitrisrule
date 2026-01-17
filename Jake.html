@@ -3,20 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jake</title>
+  <title>Jake's List</title>
 
-  <!-- Same fun font + shared CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+
+  <!-- (optional) bump v= when you change CSS to force refresh -->
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
   <div class="page">
-    <h1>Jake</h1>
-    <p>Jake’s page content goes here.</p>
+    <h1>Jake’s List</h1>
+
+    <form class="gift-form" id="giftForm">
+      <label for="giftInput">Gift Idea for Jake</label>
+      <input type="text" id="giftInput" placeholder="Enter a gift idea" autocomplete="off">
+      <button type="submit">Add to List</button>
+    </form>
+
+    <div class="gift-list-wrap">
+      <h2 class="gift-list-title">Ideas</h2>
+      <ul class="gift-list" id="giftList"></ul>
+      <p class="gift-empty" id="giftEmpty">No ideas yet — add one above.</p>
+    </div>
   </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbyh0C40bopHY2Bfqtria3adRqVNEDJoc_2_MXn3UuS2iOaQIlqJgJAJcnOeF-c7VgTs/exec";
+    const PERSON = "Jake";
+
+    const form = document.getElementById("giftForm");
+    const input = document.getElementById("giftInput");
+    const listEl = document.getElementById("giftList");
+    const emptyEl = document.getElementById("giftEmpty");
+
+    async function apiPost(payload) {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        // Apps Script Web Apps play nicest with text/plain
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+      return res.json();
+    }
+
+    async function loadList() {
+      const res = await fetch(`${API_URL}?person=${encodeURIComponent(PERSON)}`);
+      return res.json();
+    }
+
+    function renderItems(items) {
+      listEl.innerHTML = "";
+
+      if (!items || items.length === 0) {
+        emptyEl.style.display = "block";
+        return;
+      }
+      emptyEl.style.display = "none";
+
+      items.forEach(item => {
+        const li = document.createElement("li");
+        li.className = "gift-item";
+
+        const span = document.createElement("span");
+        span.className = "gift-text";
+        span.textContent = item.text;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "gift-delete";
+        btn.textContent = "Delete";
+        btn.addEventListener("click", async () => {
+          await apiPost({ action: "delete", person: PERSON, id: item.id });
+          await refresh();
+        });
+
+        li.appendChild(span);
+        li.appendChild(btn);
+        listEl.appendChild(li);
+      });
+    }
+
+    async function refresh() {
+      const data = await loadList();
+      if (data.ok) renderItems(data.items);
+      else console.log("API error:", data);
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      await apiPost({ action: "add", person: PERSON, text });
+      input.value = "";
+      input.focus();
+      await refresh();
+    });
+
+    refresh();
+  </script>
 
 </body>
 </html>
